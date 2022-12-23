@@ -1,2 +1,0 @@
-# FaceRecognition
-Face recognizer
