@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Face</string>
     <string name="open_camera">open camera</string>
-    <string name="start">START</string>
+    <string name="start">SCAN A FACE</string>
 </resources>

@@ -29,7 +29,6 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
     private Mat mGray;
     private CameraBridgeViewBase mCameraBridgeViewBase;
     private Recognition mRecognition;
-    private final int INPUT_SIZE = 96;
 
     private final BaseLoaderCallback mBaseLoaderCallback =
             new BaseLoaderCallback(this) {
@@ -37,14 +36,14 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
                 public void onManagerConnected(int status) {
                     if (status == LoaderCallbackInterface.SUCCESS) {
                         mCameraBridgeViewBase.enableView();
-                        Log.i(TAG, "openCv is loaded");
+
                     }
                     super.onManagerConnected(status);
                 }
             };
 
     public CameraActivity() {
-        Log.i(TAG, "Class instantiated " + this.getClass());
+
     }
 
     @Override
@@ -56,7 +55,8 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+                    new String[]{Manifest.permission.CAMERA},
+                    PERMISSION_REQUEST_CODE);
         }
 
         setContentView(R.layout.activity_camera);
@@ -66,6 +66,7 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         mCameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
 
         try {
+            int INPUT_SIZE = 96;
             mRecognition = new Recognition(getApplicationContext(), getAssets(),
                     "best_model" +
                             ".tflite", INPUT_SIZE);
@@ -82,7 +83,8 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
 
         if (OpenCVLoader.initDebug()) {
             Log.d(TAG, "loaded");
-            mBaseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            mBaseLoaderCallback.onManagerConnected(
+                    LoaderCallbackInterface.SUCCESS);
         } else {
             Log.d(TAG, "!loaded");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this,

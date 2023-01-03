@@ -34,8 +34,6 @@ import java.util.Objects;
 public class Recognition {
     private final Interpreter mInterpreter;
     private final int INPUT_SIZE;
-    private int height = 0;
-    private int width = 0;
     private CascadeClassifier mCascadeClassifier;
 
 
@@ -54,7 +52,8 @@ public class Recognition {
 
         try {
             InputStream inputStream =
-                    sContext.getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
+                    sContext.getResources().openRawResource(
+                            R.raw.haarcascade_frontalface_alt);
             File cascadePath = sContext.getDir("cascade",
                     Context.MODE_PRIVATE);
 
@@ -84,7 +83,8 @@ public class Recognition {
     }
 
     //load model method
-    private MappedByteBuffer loadModel(AssetManager sAssetManager, String sPath) throws IOException {
+    private MappedByteBuffer loadModel(AssetManager sAssetManager,
+                                       String sPath) throws IOException {
 
         AssetFileDescriptor assetFileDescriptor = sAssetManager.openFd(sPath);
         FileInputStream inputStream =
@@ -103,8 +103,8 @@ public class Recognition {
         Core.flip(sImage.t(), sImage, 1);
         Mat grayScale = new Mat();
         Imgproc.cvtColor(sImage, grayScale, Imgproc.COLOR_RGBA2GRAY);
-        height = grayScale.height();
-        width = grayScale.width();
+        int height = grayScale.height();
+        int width = grayScale.width();
 
         int absoluteFaceSize = (int) (height * 0.1);
         MatOfRect ofRectFaces = new MatOfRect();
@@ -137,15 +137,19 @@ public class Recognition {
 
             float[][] faceValue = new float[1][1];
             mInterpreter.run(buffer, faceValue);
-            Log.d("response", "moment " + Array.get(Objects.requireNonNull(Array.get(faceValue, 0)), 0));
 
-            float readFace = (float) Array.get(Objects.requireNonNull(Array.get(faceValue, 0)), 0);
+            float readFace = (float) Array.get(
+                    Objects.requireNonNull(Array.get(faceValue, 0)), 0);
+
             Log.i("working", "" + readFace);
+
             String faceName = getFaceName(readFace);
+
             Log.i("working", "" + faceName);
 
             Imgproc.putText(sImage, "" + faceName,
-                    new Point((int) sRect.tl().x + 10, (int) sRect.tl().y + 20), 1,
+                    new Point((int) sRect.tl().x + 10, (int) sRect.tl().y + 20),
+                    1,
                     1.5, new Scalar(255, 255, 255, 150), 2);
 
 
