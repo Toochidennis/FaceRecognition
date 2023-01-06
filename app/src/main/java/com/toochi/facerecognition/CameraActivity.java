@@ -24,6 +24,7 @@ import java.io.IOException;
 public class CameraActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private static final String TAG = "CameraActivity";
+
     int PERMISSION_REQUEST_CODE = 0;
     private Mat mRGBA;
     private Mat mGray;
@@ -68,7 +69,7 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         try {
             int INPUT_SIZE = 96;
             mRecognition = new Recognition(getApplicationContext(), getAssets(),
-                    "best_model" +
+                    "model" +
                             ".tflite", INPUT_SIZE);
         } catch (IOException sE) {
             sE.printStackTrace();
@@ -126,7 +127,7 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         mRGBA = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        mRGBA = mRecognition.detectFace(mRGBA);
+        mRGBA = mRecognition.detectRealTimeFace(mRGBA);
         return mRGBA;
     }
 }

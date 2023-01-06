@@ -3,13 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.2"
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.toochi.facerecognition"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
@@ -23,8 +22,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
     }
 
     sourceSets {
@@ -35,7 +34,8 @@ android {
         }
     }
 
-    lintOptions {
+    namespace 'com.toochi.facerecognition'
+    lint {
         abortOnError false
         checkReleaseBuilds false
     }
@@ -50,8 +50,9 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite-task-text:0.1.0'
 
     implementation 'androidx.core:core-splashscreen:1.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation project(path: ':openCVLibrary3413')

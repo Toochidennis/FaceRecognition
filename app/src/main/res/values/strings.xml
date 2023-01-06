@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Face</string>
-    <string name="open_camera">open camera</string>
-    <string name="start">SCAN A FACE</string>
+    <string name="open_camera">Use Camera</string>
+    <string name="upload">Select Image</string>
+    <string name="detect">Detect Face</string>
+    <string name="image_holder">Image Holder</string>
 </resources>

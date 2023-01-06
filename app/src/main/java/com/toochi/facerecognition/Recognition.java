@@ -32,9 +32,13 @@ import java.nio.channels.FileChannel;
 import java.util.Objects;
 
 public class Recognition {
+
+    private static final Scalar FACE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+
     private final Interpreter mInterpreter;
     private final int INPUT_SIZE;
     private CascadeClassifier mCascadeClassifier;
+    private String mFaceName;
 
 
     public Recognition(Context sContext, AssetManager sAssetManager,
@@ -74,7 +78,6 @@ public class Recognition {
             mCascadeClassifier =
                     new CascadeClassifier(newCascade.getAbsolutePath());
 
-            Log.d("response", "moment of truth loaded");
 
         } catch (Resources.NotFoundException sE) {
             sE.printStackTrace();
@@ -98,9 +101,12 @@ public class Recognition {
 
     }
 
-    public Mat detectFace(Mat sImage) {
+    public Mat detectRealTimeFace(Mat sImage) {
+
+        // flip image to 90 degrees
 
         Core.flip(sImage.t(), sImage, 1);
+
         Mat grayScale = new Mat();
         Imgproc.cvtColor(sImage, grayScale, Imgproc.COLOR_RGBA2GRAY);
         int height = grayScale.height();
@@ -112,10 +118,13 @@ public class Recognition {
         if (mCascadeClassifier != null) {
             mCascadeClassifier.detectMultiScale(grayScale, ofRectFaces, 1.1,
                     2, 2, new Size(absoluteFaceSize, absoluteFaceSize));
+
         }
+
 
         Rect[] faceArray = ofRectFaces.toArray();
         for (Rect sRect : faceArray) {
+
             //do something
             Imgproc.rectangle(sImage, sRect.tl(), sRect.br(),
                     new Scalar(0, 255, 0, 255), 2);
@@ -126,6 +135,7 @@ public class Recognition {
 
             Mat cropped_rgb = new Mat(sImage, ofRect);
 
+            Log.i("working", "" + "readFace5");
             Bitmap bitmap, scaledBitmap;
             bitmap = Bitmap.createBitmap(cropped_rgb.cols(),
                     cropped_rgb.rows(), Bitmap.Config.ARGB_8888);
@@ -134,6 +144,7 @@ public class Recognition {
             scaledBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE,
                     INPUT_SIZE, false);
             ByteBuffer buffer = convertBitmapToByteBuffer(scaledBitmap);
+            Log.i("working", "" + "readFace");
 
             float[][] faceValue = new float[1][1];
             mInterpreter.run(buffer, faceValue);
@@ -149,16 +160,74 @@ public class Recognition {
 
             Imgproc.putText(sImage, "" + faceName,
                     new Point((int) sRect.tl().x + 10, (int) sRect.tl().y + 20),
-                    1,
-                    1.5, new Scalar(255, 255, 255, 150), 2);
+                    1, 1.5, new Scalar(255, 255, 255, 150), 2);
 
 
         }
 
-
         Core.flip(sImage.t(), sImage, 0);
 
         return sImage;
+    }
+
+    public Mat detectFaceFromGallery(Mat sRgba, Mat sGray,
+                                     int sAbsoluteFaceSize) {
+
+        Imgproc.cvtColor(sRgba, sGray, Imgproc.COLOR_RGBA2GRAY);
+
+        if (sAbsoluteFaceSize == 0) {
+            int height = sGray.rows();
+            float relativeFaceSize = 0.2f;
+            if (Math.round(height * relativeFaceSize) > 0) {
+                sAbsoluteFaceSize = Math.round(height * relativeFaceSize);
+            }
+        }
+
+        if (mCascadeClassifier != null) {
+
+            MatOfRect matOfRect = new MatOfRect();
+            mCascadeClassifier.detectMultiScale(sRgba, matOfRect, 1.1, 7, 2,
+                    new Size(sAbsoluteFaceSize, sAbsoluteFaceSize));
+
+            for (Rect rect : matOfRect.toArray()) {
+                Imgproc.rectangle(sRgba, new Point(rect.x, rect.y),
+                        new Point(rect.x + rect.width,
+                                rect.y + rect.height),
+                        FACE_RECT_COLOR, 3, 2);
+
+                Rect ofRect = new Rect((int) rect.tl().x, (int) rect.tl().y,
+                        ((int) rect.br().x) - ((int) rect.tl().x),
+                        ((int) rect.br().y) - ((int) rect.tl().y));
+
+                Mat cropped_rgb = new Mat(sRgba, ofRect);
+
+                Bitmap bitmap, scaledBitmap;
+                bitmap = Bitmap.createBitmap(cropped_rgb.cols(),
+                        cropped_rgb.rows(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(cropped_rgb, bitmap);
+
+                scaledBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE,
+                        INPUT_SIZE, false);
+                ByteBuffer buffer = convertBitmapToByteBuffer(scaledBitmap);
+                Log.i("working", "" + "readFace");
+
+                float[][] faceValue = new float[1][1];
+                mInterpreter.run(buffer, faceValue);
+
+                float readFace = (float) Array.get(
+                        Objects.requireNonNull(Array.get(faceValue, 0)), 0);
+
+                mFaceName = getFaceName(readFace);
+
+                Log.i("FaceName", "" + mFaceName);
+
+                Imgproc.putText(sRgba, "" + mFaceName,
+                        new Point((int) rect.tl().x + 10,
+                                (int) rect.tl().y + 20),
+                        1, 1.5, new Scalar(255, 255, 255, 150), 2);
+            }
+        }
+        return sRgba;
     }
 
     private String getFaceName(float sReadFace) {
@@ -184,7 +253,7 @@ public class Recognition {
         } else if (sReadFace >= 8.5 & sReadFace < 9.5) {
             name = "Mohammed Ali";
         } else if (sReadFace >= 9.5 & sReadFace < 10.5) {
-            name = "Bard Pitt";
+            name = "Brad Pitt";
         } else if (sReadFace >= 10.5 & sReadFace < 11.5) {
             name = "Christiano Ronaldo";
         } else if (sReadFace >= 11.5 & sReadFace < 12.5) {
@@ -226,6 +295,10 @@ public class Recognition {
         }
 
         return buffer;
+    }
+
+    public String getFaceName() {
+        return mFaceName;
     }
 
 
