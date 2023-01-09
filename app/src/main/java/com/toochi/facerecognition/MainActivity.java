@@ -92,9 +92,11 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         try {
+
             mRecognition = new Recognition(
-                    getApplicationContext(), getAssets(), "model" +
-                    ".tflite", INPUT_SIZE);
+                    getApplicationContext(), getAssets(), "model.tflite",
+                    INPUT_SIZE);
+
         } catch (IOException sE) {
             sE.printStackTrace();
         }
@@ -102,8 +104,16 @@ public class MainActivity extends AppCompatActivity {
         mResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 result -> {
-                    Picasso.get().load(result).into(mImageView);
-                    mDetectImage.setVisibility(View.VISIBLE);
+                    if (result != null && !result.getPath().isEmpty()) {
+
+                        Picasso.get().load(result).into(mImageView);
+                        mDetectImage.setVisibility(View.VISIBLE);
+
+                    } else {
+
+                        mDetectImage.setVisibility(View.GONE);
+                    }
+
                 });
 
 
@@ -118,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
 
             mResultLauncher.launch("image/*");
 
+            mDetectImage.setVisibility(View.GONE);
             mTextView.setVisibility(View.GONE);
+            mImageView.setImageBitmap(null);
             mTextView.setText("");
         });
 
@@ -133,36 +145,31 @@ public class MainActivity extends AppCompatActivity {
 
     private void detectFace() {
 
-        if (mImageView != null) {
+        Bitmap bitmap =
+                ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        Mat RGBA = new Mat(bitmap.getWidth(), bitmap.getHeight(),
+                CvType.CV_8UC4);
+        Mat gray = new Mat(bitmap.getWidth(), bitmap.getHeight(),
+                CvType.CV_8UC4);
+        Utils.bitmapToMat(bitmap, RGBA);
+        int absoluteFaceSize = (int) (bitmap.getHeight() * 0.2);
 
-            Bitmap bitmap =
-                    ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
-            Mat RGBA = new Mat(bitmap.getWidth(), bitmap.getHeight(),
-                    CvType.CV_8UC4);
-            Mat gray = new Mat(bitmap.getWidth(), bitmap.getHeight(),
-                    CvType.CV_8UC4);
-            Utils.bitmapToMat(bitmap, RGBA);
-            int absoluteFaceSize = (int) (bitmap.getHeight() * 0.2);
+        Utils.matToBitmap(mRecognition.detectFaceFromGallery(RGBA, gray
+                , absoluteFaceSize), bitmap);
 
-            Utils.matToBitmap(mRecognition.detectFaceFromGallery(RGBA, gray
-                    , absoluteFaceSize), bitmap);
+        new Handler().postDelayed(() -> {
+            //Convert to byte array
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+            byte[] byteArray = stream.toByteArray();
+            Bitmap bmp = BitmapFactory.decodeByteArray(byteArray, 0,
+                    byteArray.length);
+            mImageView.setImageBitmap(bmp);
+            String name = "Name: " + mRecognition.getFaceName();
+            mTextView.setText(name);
+            mTextView.setVisibility(View.VISIBLE);
 
-            new Handler().postDelayed(() -> {
-                //Convert to byte array
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
-                byte[] byteArray = stream.toByteArray();
-                Bitmap bmp = BitmapFactory.decodeByteArray(byteArray, 0,
-                        byteArray.length);
-                mImageView.setImageBitmap(bmp);
-                String name = "Name: " + mRecognition.getFaceName();
-                mTextView.setText(name);
-                mTextView.setVisibility(View.VISIBLE);
-
-            }, 1000);
-
-
-        }
+        }, 1000);
 
 
     }

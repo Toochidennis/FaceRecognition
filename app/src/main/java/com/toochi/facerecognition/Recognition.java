@@ -135,7 +135,6 @@ public class Recognition {
 
             Mat cropped_rgb = new Mat(sImage, ofRect);
 
-            Log.i("working", "" + "readFace5");
             Bitmap bitmap, scaledBitmap;
             bitmap = Bitmap.createBitmap(cropped_rgb.cols(),
                     cropped_rgb.rows(), Bitmap.Config.ARGB_8888);
@@ -144,7 +143,6 @@ public class Recognition {
             scaledBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE,
                     INPUT_SIZE, false);
             ByteBuffer buffer = convertBitmapToByteBuffer(scaledBitmap);
-            Log.i("working", "" + "readFace");
 
             float[][] faceValue = new float[1][1];
             mInterpreter.run(buffer, faceValue);
@@ -152,16 +150,11 @@ public class Recognition {
             float readFace = (float) Array.get(
                     Objects.requireNonNull(Array.get(faceValue, 0)), 0);
 
-            Log.i("working", "" + readFace);
-
             String faceName = getFaceName(readFace);
-
-            Log.i("working", "" + faceName);
 
             Imgproc.putText(sImage, "" + faceName,
                     new Point((int) sRect.tl().x + 10, (int) sRect.tl().y + 20),
                     1, 1.5, new Scalar(255, 255, 255, 150), 2);
-
 
         }
 
@@ -209,7 +202,6 @@ public class Recognition {
                 scaledBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE,
                         INPUT_SIZE, false);
                 ByteBuffer buffer = convertBitmapToByteBuffer(scaledBitmap);
-                Log.i("working", "" + "readFace");
 
                 float[][] faceValue = new float[1][1];
                 mInterpreter.run(buffer, faceValue);
@@ -218,8 +210,6 @@ public class Recognition {
                         Objects.requireNonNull(Array.get(faceValue, 0)), 0);
 
                 mFaceName = getFaceName(readFace);
-
-                Log.i("FaceName", "" + mFaceName);
 
                 Imgproc.putText(sRgba, "" + mFaceName,
                         new Point((int) rect.tl().x + 10,

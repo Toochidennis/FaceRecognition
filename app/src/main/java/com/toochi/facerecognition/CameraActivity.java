@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class CameraActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
-    private static final String TAG = "CameraActivity";
+    //private static final String TAG = "CameraActivity";
 
     int PERMISSION_REQUEST_CODE = 0;
     private Mat mRGBA;
@@ -69,8 +69,7 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         try {
             int INPUT_SIZE = 96;
             mRecognition = new Recognition(getApplicationContext(), getAssets(),
-                    "model" +
-                            ".tflite", INPUT_SIZE);
+                    "model.tflite", INPUT_SIZE);
         } catch (IOException sE) {
             sE.printStackTrace();
             Log.d("response", "!loaded");
@@ -83,11 +82,11 @@ public class CameraActivity extends Activity implements CameraBridgeViewBase.CvC
         super.onResume();
 
         if (OpenCVLoader.initDebug()) {
-            Log.d(TAG, "loaded");
+           // Log.d(TAG, "loaded");
             mBaseLoaderCallback.onManagerConnected(
                     LoaderCallbackInterface.SUCCESS);
         } else {
-            Log.d(TAG, "!loaded");
+           // Log.d(TAG, "!loaded");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this,
                     mBaseLoaderCallback);
         }
